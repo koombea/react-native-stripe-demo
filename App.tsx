@@ -1,21 +1,35 @@
-import React from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { StripeProvider } from '@stripe/stripe-react-native';
+import React, { useEffect, useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import HomeScreen from './src/screens/HomeScreen';
 
+const queryClient = new QueryClient();
+
 const App = () => {
+  const [publishableKeyForStripe, setPublishableKeyForStripe] = useState<
+    string | null
+  >();
+
+  useEffect(() => {
+    const getPublishableKey = async () => {
+      try {
+        const res = await fetch(`${process.env.API_URL}/publishable-key`);
+        const { publishableKey } = await res.json();
+        setPublishableKeyForStripe(publishableKey);
+      } catch (error) {
+        console.error('error', error);
+      }
+    };
+    getPublishableKey();
+  }, []);
+
   return (
-    <SafeAreaView style={styles.container}>
-      <HomeScreen />
-    </SafeAreaView>
+    <QueryClientProvider client={queryClient}>
+      <StripeProvider publishableKey={publishableKeyForStripe || ''}>
+        <HomeScreen />
+      </StripeProvider>
+    </QueryClientProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default App;
