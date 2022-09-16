@@ -1,46 +1,35 @@
 import { StripeProvider } from '@stripe/stripe-react-native';
-import React, { useEffect } from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import HomeScreen from './src/screens/HomeScreen';
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [publishableKeyForStripe, setPublishableKeyForStripe] = React.useState<
+  const [publishableKeyForStripe, setPublishableKeyForStripe] = useState<
     string | null
   >();
 
   useEffect(() => {
     const getPublishableKey = async () => {
-      const res = await fetch('http://localhost:3000/publishableKey', {
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const { publishableKey } = await res.json();
-      setPublishableKeyForStripe(publishableKey);
+      try {
+        const res = await fetch(`${process.env.API_URL}/publishable-key`);
+        const { publishableKey } = await res.json();
+        setPublishableKeyForStripe(publishableKey);
+      } catch (error) {
+        console.error('error', error);
+      }
     };
     getPublishableKey();
   }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StripeProvider
-        publishableKey={publishableKeyForStripe || ''}
-        urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
-      >
-        <SafeAreaView style={styles.container}>
-          <HomeScreen />
-        </SafeAreaView>
+      <StripeProvider publishableKey={publishableKeyForStripe || ''}>
+        <HomeScreen />
       </StripeProvider>
     </QueryClientProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    height: '100%',
-  },
-});
 
 export default App;
