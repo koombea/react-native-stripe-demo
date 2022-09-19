@@ -1,55 +1,58 @@
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View, Text, SafeAreaView, TouchableOpacity} from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, SafeAreaView, TouchableOpacity} from 'react-native';
 import { FlashList } from "@shopify/flash-list";
 import { useNavigation } from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import { NavigatorParamList } from '../../components/StackNavigator/navigatorParamList';
+import { Customer, CustomerData } from './types';
 
-const CustomerList: React.FC = () => {
-  const navigation = useNavigation();
+
+interface customerListProps {
+  setCustomerId: (customerId: string) => void;
+}
+const CustomerList: React.FC<customerListProps> = ({setCustomerId}) => {
+  const navigation = useNavigation<NativeStackNavigationProp<NavigatorParamList>>();
   const fetchCustomers = async () => {
     try {
       const res = await fetch('https://koombea-stripe-backend.herokuapp.com/customers');
-      const customers = await res.json();
-      return customers;
+      return  await res.json();
     } catch (error) {
       console.error('error', error);
     }
   };
 
-  const handlePress = () => {
-    navigation.navigate('Home');
+  const handleItemPress = (id: string) => {
+    setCustomerId(id);
+    navigation.navigate('PaymentInfo');
   }
-  const renderItem = ( item: any ) => {
-    console.log('item', item);
+
+  const renderItem = ( item: Customer ) => {
     return (
       <SafeAreaView style={styles.list}>
+        <TouchableOpacity onPress={() => handleItemPress(item.id)}>
         <Text>{item.name}</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     )
   }
 
-
-  const {data, isLoading} = useQuery(['customers'], fetchCustomers);
+  const {data, isLoading, refetch} = useQuery<CustomerData>(['customers'], fetchCustomers);
+  
   return (
     <SafeAreaView style={styles.container}>
-    {isLoading && (
-          <ActivityIndicator />
-      )}
-        {data && (
-          <>
-          <View style={styles.headerWrapper}>
-            <Text style={styles.header}>Customers</Text>
-            <TouchableOpacity onPress={() => handlePress()}>
-            <Text style={styles.plus}>+</Text>
-            </TouchableOpacity>
-          </View>
-          <FlashList
-            data={data.customers.data}
-            renderItem={({ item }) => renderItem(item)}
-            estimatedItemSize={200} />
-            </>
+      {isLoading && (
+            <ActivityIndicator />
         )}
-</SafeAreaView>
+          {data && (
+            <FlashList
+              onRefresh={refetch}
+              refreshing={isLoading}
+              data={data.customers?.data}
+              renderItem={({ item }) => renderItem(item)}
+              estimatedItemSize={200} />
+          )}
+    </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
@@ -79,11 +82,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.2,
     marginLeft: 10,
     borderBottomColor: 'lightgray',
-  },
-  plus: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: 'lightblue',
   }
 });
 
