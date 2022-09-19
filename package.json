@@ -12,6 +12,7 @@
   "dependencies": {
     "@react-native-masked-view/masked-view": "^0.2.7",
     "@react-navigation/native": "^6.0.13",
+    "@react-navigation/native-stack": "^6.9.0",
     "@react-navigation/stack": "^6.3.0",
     "@shopify/flash-list": "^1.2.2",
     "@stripe/stripe-react-native": "^0.18.1",

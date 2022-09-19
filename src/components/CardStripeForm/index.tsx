@@ -1,6 +1,6 @@
 import { CardField } from '@stripe/stripe-react-native';
 import React from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewStyle, Dimensions } from 'react-native';
 
 interface CardStripeFormProps {
   style?: ViewStyle;
@@ -36,7 +36,10 @@ export const CardStripeForm: React.FC<CardStripeFormProps> = ({
     </View>
   );
 };
-
+const width = Dimensions.get('window').width;
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    width: width - 40,
+    
+  },
 });

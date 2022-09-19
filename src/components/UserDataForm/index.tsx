@@ -1,3 +1,5 @@
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Details } from '@stripe/stripe-react-native/lib/typescript/src/types/components/CardFieldInput';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
@@ -9,18 +11,18 @@ import {
   View,
 } from 'react-native';
 import { CardStripeForm } from '../CardStripeForm';
+import { NavigatorParamList } from '../StackNavigator/navigatorParamList';
 
 export const UserDataForm: React.FC = () => {
   const [card, setCard] = useState<Details | null>(null);
-
+  const navigation = useNavigation<NativeStackNavigationProp<NavigatorParamList>>();
   const handleSubmit = async () => {
     try {
       const paymentMethod = await addCardToStripe(card);
-      console.log('payment', paymentMethod.paymentMethod.id);
-      const customer = await createCustomer(paymentMethod.paymentMethod.id);
-      console.log('customer', customer);
+      await createCustomer(paymentMethod.paymentMethod.id);
+      navigation.navigate('PaymentInfo');
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

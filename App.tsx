@@ -1,16 +1,14 @@
 import { StripeProvider } from '@stripe/stripe-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, createContext } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { NavigationContainer } from '@react-navigation/native';
 import StackNavigator from './src/components/StackNavigator';
-
 const queryClient = new QueryClient();
-
 const App = () => {
   const [publishableKeyForStripe, setPublishableKeyForStripe] = useState<
     string | null
   >();
-
+  
   useEffect(() => {
     const getPublishableKey = async () => {
       try {
