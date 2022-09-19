@@ -1,19 +1,20 @@
 import { StripeProvider } from '@stripe/stripe-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, createContext } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import HomeScreen from './src/screens/HomeScreen';
-
+import { NavigationContainer } from '@react-navigation/native';
+import StackNavigator from './src/components/StackNavigator';
 const queryClient = new QueryClient();
-
 const App = () => {
   const [publishableKeyForStripe, setPublishableKeyForStripe] = useState<
     string | null
   >();
-
+  
   useEffect(() => {
     const getPublishableKey = async () => {
       try {
-        const res = await fetch(`${process.env.API_URL}/publishable-key`);
+        const res = await fetch(
+          'https://koombea-stripe-backend.herokuapp.com/publishable-key',
+        );
         const { publishableKey } = await res.json();
         setPublishableKeyForStripe(publishableKey);
       } catch (error) {
@@ -24,11 +25,13 @@ const App = () => {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <StripeProvider publishableKey={publishableKeyForStripe || ''}>
-        <HomeScreen />
-      </StripeProvider>
-    </QueryClientProvider>
+    <NavigationContainer>
+      <QueryClientProvider client={queryClient}>
+        <StripeProvider publishableKey={publishableKeyForStripe || ''}>
+          <StackNavigator />
+        </StripeProvider>
+      </QueryClientProvider>
+    </NavigationContainer>
   );
 };
 
