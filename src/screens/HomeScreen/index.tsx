@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { UserDataForm } from '../components/UserDataForm';
+import { UserDataForm } from '../../components/UserDataForm';
 
 const HomeScreen: React.FC = () => {
   return (
