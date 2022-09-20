@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import HomeScreen from '../../screens/HomeScreen';
 import CustomerList from '../../screens/CustomerList';
 import PaymentInfo from '../../screens/PaymentInfo';
 import { useNavigation } from '@react-navigation/native';
@@ -9,6 +8,8 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import AddCard from '../../screens/AddCard';
 import { NavigatorParamList } from './navigatorParamList';
+import Login from '../../screens/LoginScreen';
+import HomeScreen from '../../screens/HomeScreen';
 
 const Stack = createNativeStackNavigator<NavigatorParamList>();
 
@@ -32,10 +33,11 @@ const StackNavigator: React.FC = () => {
   }
   return (
     <Stack.Navigator
-    initialRouteName='CustomerList'
+    initialRouteName='Login'
       screenOptions={{
-        headerBackTitleVisible: true
+        headerShown: false,
       }}>
+      <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="CustomerList" options={({ route }) => ({
         headerRight: () => handleHeaderRightCustomerList(route)

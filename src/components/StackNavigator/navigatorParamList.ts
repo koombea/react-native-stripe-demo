@@ -3,4 +3,5 @@ export type NavigatorParamList = {
   CustomerList: undefined;
   AddCard: undefined;
   PaymentInfo: undefined;
+  Login: undefined;
 }
