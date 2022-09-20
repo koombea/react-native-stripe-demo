@@ -1,66 +1,78 @@
-import { useNavigation } from '@react-navigation/native';
-import { Details } from '@stripe/stripe-react-native/lib/typescript/src/types/components/CardFieldInput';
-import React, { useState } from 'react';
-import { Button, StyleSheet, View } from 'react-native';
-import { CardStripeForm } from '../../components/CardStripeForm';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import { NavigatorParamList } from '../../components/StackNavigator/navigatorParamList';
+import React, { useEffect, useState } from 'react';
+import { Alert, Button, SafeAreaView, StyleSheet, View } from 'react-native';
+import { useStripe } from '@stripe/stripe-react-native';
 
-interface AddCardProps {
-  customerId: string;
-}
+const AddCard: React.FC = () => {
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const [loading, setLoading] = useState(false);
 
-const AddCard: React.FC<AddCardProps> = ({customerId}) => {
-  const [card, setCard] = useState<Details | null>(null);
-  const navigation = useNavigation<NativeStackNavigationProp<NavigatorParamList>>();
-
-  const addCardToStripe = async (cardDetails: Details | null) => {
-    const res = await fetch(`${process.env.API_URL}/create-payment-card`, {
-      headers: { 'Content-Type': 'application/json' },
+  const fetchPaymentSheetParams = async () => {
+    try {
+    const response = await fetch('https://koombea-stripe-backend.herokuapp.com/payment-sheet/cus_MSdHxwdsRVCDHc', {
       method: 'POST',
-      body: JSON.stringify({
-        number: cardDetails?.number,
-        exp_month: cardDetails?.expiryMonth,
-        exp_year: cardDetails?.expiryYear,
-        cvc: cardDetails?.cvc,
-      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
+    const { setupIntent, ephemeralKey, customer } = await response.json();
 
-    return res.json();
+    return {
+      setupIntent,
+      ephemeralKey,
+      customer,
+    };
+  } catch (error) {
+     console.error('first', error) 
+  }
   };
-  const addCardToCustomer = async () => {
-    const {paymentMethod} = await addCardToStripe(card);
+
+  const initializePaymentSheet = async () => {
     try {
-      const res = await fetch(`https://koombea-stripe-backend.herokuapp.com/customers/${customerId}`, {
-        headers: { 'Content-Type': 'application/json' },
-        method: 'POST',
-        body: JSON.stringify({
-          paymentMethod: paymentMethod.id,
-      })
+    const {
+      setupIntent,
+      ephemeralKey,
+      customer,
+    } = await fetchPaymentSheetParams();
+    const { error } = await initPaymentSheet({
+      customerId: customer,
+      customerEphemeralKeySecret: ephemeralKey,
+      setupIntentClientSecret: setupIntent,
+      merchantDisplayName: 'Merchant Name',
     });
-      return await res.json();
-    } catch (error) {
-      console.error('error', error);
+    if (!error) {
+      setLoading(true);
+    } else {
+      console.error('second', error);
+    }
+  } catch (error) {
+    console.log('third', error)
+  }
+  };
+
+  const openPaymentSheet = async () => {
+    const { error } = await presentPaymentSheet();
+
+    if (error) {
+      Alert.alert(`Error code: ${error.code}`, error.message);
+    } else {
+      Alert.alert('Success', 'Your payment method is successfully set up for future payments!');
     }
   };
 
-  const handlePress = async () => {
-    try {
-    await addCardToCustomer();
-    navigation.navigate('PaymentInfo');
-    } catch (error) {
-      console.error('error', error);
-    }
-  };
+  useEffect(() => {
+    initializePaymentSheet();
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <CardStripeForm setCard={setCard}/>
-      <View style={styles.btnWrapper}>
-      <Button onPress={handlePress} title={'Add Card'}/>
-      </View>
-    </View>
-    )
-}
+    <SafeAreaView>
+      <Button
+        disabled={!loading}
+        title="Set up"
+        onPress={openPaymentSheet}
+      />
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

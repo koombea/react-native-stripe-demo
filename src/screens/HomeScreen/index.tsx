@@ -1,6 +1,10 @@
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
+import { NavigatorParamList } from '../../components/StackNavigator/navigatorParamList';
 const HomeScreen: React.FC = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<NavigatorParamList>>();
   return (
     <View style={styles.container}>
     <View style={styles.topContainer}>
@@ -11,7 +15,7 @@ const HomeScreen: React.FC = () => {
     </View>
     <View style={styles.bottomContainer}>
         <TouchableOpacity
-          onPress={() => console.log('pressed')}
+          onPress={() => navigation.navigate('AddCard')}
           style={styles.button}>
             <Text style={{color:'white', fontSize:16}}>LET'S ADD SOME CREDIT CARDS!</Text>
           </TouchableOpacity>
