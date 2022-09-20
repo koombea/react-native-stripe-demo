@@ -4,40 +4,57 @@ import React from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
 import { NavigatorParamList } from '../../components/StackNavigator/navigatorParamList';
 const HomeScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<NavigatorParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<NavigatorParamList>>();
   return (
     <View style={styles.container}>
-    <View style={styles.topContainer}>
-      <Text style={styles.h1}>Stripe Demo App</Text>
-    </View>
-    <View style={styles.middleContainer}>
-      <Image source={require('../../assets/stripe.png')} style={styles.image} resizeMode={'contain'} />
-    </View>
-    <View style={styles.bottomContainer}>
+      <View style={styles.middleContainer}>
+        <Image
+          source={require('../../assets/stripe.png')}
+          style={styles.image}
+          resizeMode={'contain'}
+        />
+        <Text style={styles.h1}>Stripe Demo App</Text>
+        <Text style={styles.h2}>
+          In this application you can experiment Stripe's functionalities to add
+          credit cards and see them listed on your screen.
+        </Text>
+        <Text style={styles.h2}>To add a card</Text>
+        <Text style={styles.steps}>
+          1. Press the add button on the next screen and fill the information in
+          Stripe's form modal.
+        </Text>
+        <Text style={styles.steps}>
+          2. Check if the card was successfully added on the list.
+        </Text>
+      </View>
+
+      <View style={styles.bottomContainer}>
         <TouchableOpacity
           onPress={() => navigation.navigate('AddCard')}
           style={styles.button}>
-            <Text style={{color:'white', fontSize:16}}>LET'S ADD SOME CREDIT CARDS!</Text>
-          </TouchableOpacity>
+          <Text style={styles.buttonText}>LET'S ADD SOME CREDIT CARDS!</Text>
+        </TouchableOpacity>
+      </View>
     </View>
-  </View>
   );
 };
 
 const styles = StyleSheet.create({
   topContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    marginTop: 16,
   },
   middleContainer: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
+    paddingHorizontal: 16,
+    justifyContent: 'center',
   },
   bottomContainer: {
     justifyContent: 'flex-end',
-    width: '90%',
+    width: '100%',
     margin: 20,
     padding: 10,
   },
@@ -49,8 +66,20 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   h1: {
-    color: '#635AFF',
+    color: '#373737',
     fontSize: 40,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  h2: {
+    marginTop: 20,
+    color: '#2e2e2e',
+    fontSize: 16,
+  },
+  steps: {
+    marginTop: 20,
+    color: '#2e2e2e',
+    fontSize: 16,
   },
   image: {
     width: 350,
@@ -60,12 +89,18 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#635AFF',
-    borderRadius: 5,
+    borderRadius: 30,
     padding: 20,
-    margin: 8,
+    marginBottom: 8,
+    marginHorizontal: 16,
     justifyContent: 'center',
     alignItems: 'center',
-  }
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default HomeScreen;

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useStripe } from '@stripe/stripe-react-native';
 import { useQuery } from '@tanstack/react-query';
-import { PaymentMethodData } from '../PaymentInfo/types';
+import { PaymentMethod, PaymentMethodData } from '../PaymentInfo/types';
 import { FlashList } from '@shopify/flash-list';
 
 interface CreditCardMapType {
@@ -45,7 +45,7 @@ const AddCard: React.FC = () => {
         setupIntent,
         ephemeralKey,
         customer,
-      };
+      } as { setupIntent: string; ephemeralKey: string; customer: string };
     } catch (error) {
       console.error('first', error);
     }
@@ -54,11 +54,11 @@ const AddCard: React.FC = () => {
   const initializePaymentSheet = async () => {
     try {
       const { setupIntent, ephemeralKey, customer } =
-        await fetchPaymentSheetParams();
+        (await fetchPaymentSheetParams()) || {};
       const { error } = await initPaymentSheet({
-        customerId: customer,
-        customerEphemeralKeySecret: ephemeralKey,
-        setupIntentClientSecret: setupIntent,
+        customerId: customer || '',
+        customerEphemeralKeySecret: ephemeralKey || '',
+        setupIntentClientSecret: setupIntent || '',
         merchantDisplayName: 'Merchant Name',
       });
       if (!error) {
@@ -81,16 +81,33 @@ const AddCard: React.FC = () => {
         'Success',
         'Your payment method is successfully set up for future payments!',
       );
+      refetch();
     }
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = (item: PaymentMethod) => (
     <View style={styles.listItem}>
       <Image source={creditCardMap[item.card.brand]} style={styles.image} />
       <Text>{`************${item.card.last4}`}</Text>
       <Text>{`${item.card.exp_month}/${item.card.exp_year}`}</Text>
     </View>
   );
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const res = await fetch(
+        `https://koombea-stripe-backend.herokuapp.com/customerByEmail/test@test.com`,
+      );
+      console.log('test', await res.json());
+      return await res.json();
+    } catch (error) {
+      console.error('error', error);
+    }
+  };
 
   const fetchCards = async () => {
     try {
@@ -121,7 +138,7 @@ const AddCard: React.FC = () => {
         <FlashList
           onRefresh={refetch}
           refreshing={isLoading}
-          renderItem={renderItem}
+          renderItem={({ item }) => renderItem(item)}
           data={data?.paymentMethods.data || []}
           estimatedItemSize={200}
         />
